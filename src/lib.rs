@@ -11,8 +11,8 @@ Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, 
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
@@ -23,13 +23,13 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //! 'bee_code' is a library providing methods for encoding and decoding
 //! bencoded data - a format used in .torrent files
 //! and communication with trackers.
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, error::Error, fmt::Display};
 
 /// Custom error types returned during parsing
 #[derive(Debug, PartialEq, Eq)]
 pub enum BencodeError {
     /// Returned when the number specifying the length of a string
-    /// is negative - b"-3:dog"
+    /// is negative - b"-3:dog".
     /// Includes the position in the vector at which the error occured.
     NegativeLen(String),
     /// Returned when an unexpected byte was found at the current
@@ -40,6 +40,18 @@ pub enum BencodeError {
     /// Includes the position in the vector at which the error occured.
     Utf8Error(String),
 }
+
+impl Display for BencodeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BencodeError::NegativeLen(e) => write!(f, "{}", e),
+            BencodeError::Unexpected(e) => write!(f, "{}", e),
+            BencodeError::Utf8Error(e) => write!(f, "{}", e),
+        }
+    }
+}
+
+impl Error for BencodeError {}
 
 /// Represent the four types included in the Bencode specification
 #[derive(Debug, PartialEq, Eq)]
